@@ -16,12 +16,6 @@ class PermissionSeeder extends Seeder
         $permissions = [
             'manage_services',
             'manage_categories',
-            'view_rdv',
-            'manage_rdv',
-            'manage_clients',
-            'manage_disponibilites',
-            'manage_payments',
-            'view_dashboard',
             'manage_roles'
         ];
 
