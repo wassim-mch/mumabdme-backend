@@ -9,9 +9,18 @@ use Illuminate\Http\Request;
 
 class RdvController extends Controller
 {
-    public function index($id)
+    public function indexAll()
     {
-        $rdvs = Rdv::where('user_id', $id)->with('items.service')->get();
+        $rdvs = Rdv::with('items.service', 'facture')->get();
+        return response()->json([
+            'status' => 200,
+            'rdvs' => $rdvs
+        ], 200);
+    }
+
+    public function index()
+    {
+        $rdvs = Rdv::where('user_id', auth()->id())->with('items.service', 'facture')->get();
         return response()->json([
             'status' => 200,
             'rdvs' => $rdvs

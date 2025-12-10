@@ -18,6 +18,8 @@ class PermissionSeeder extends Seeder
             'manage_categories',
             'manage_roles', 
             'manage_rdv',
+            'manage_rdvs_own',
+            'manage_users',
         ];
 
         foreach ($permissions as $p) {
