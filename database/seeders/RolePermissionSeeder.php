@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('role_permission')->insert([
+        DB::table('role_permissions')->insert([
             [
                 'role_id' => 1, 
                 'permission_id' => 1, 
@@ -26,7 +26,7 @@ class RolePermissionSeeder extends Seeder
                 'permission_id' => 3, 
             ],
         ]);
-        DB::table('role_permission')->insert([
+        DB::table('role_permissions')->insert([
             [
                 'role_id' => 2, 
                 'permission_id' => 4,
