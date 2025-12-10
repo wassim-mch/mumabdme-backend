@@ -16,7 +16,8 @@ class PermissionSeeder extends Seeder
         $permissions = [
             'manage_services',
             'manage_categories',
-            'manage_roles'
+            'manage_roles', 
+            'manage_rdv',
         ];
 
         foreach ($permissions as $p) {
