@@ -88,6 +88,7 @@ class ServiceController extends Controller
         $validated = $request->validated();
 
         $days = $validated['days'] ?? [];
+        
         unset($validated['days']);
 
         if ($request->hasFile('image')) {
