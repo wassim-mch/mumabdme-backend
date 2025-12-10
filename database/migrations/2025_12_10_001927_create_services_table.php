@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->nullOnDelete();
             $table->string('name');
             $table->text('description');
+            $table->string('image');
             $table->string('duration');
             $table->decimal('price', 10, 2)->default(0);
             $table->boolean('is_active')->default(true);

@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\JourDisponible;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
-use Symfony\Component\HttpKernel\HttpCache\Store;
 
 class ServiceController extends Controller
 {
@@ -24,10 +23,12 @@ class ServiceController extends Controller
 
     public function store(StoreServiceRequest $request)
     {
-         $validated = $request->validated();
+        $validated = $request->validated();
 
+        // إنشاء الخدمة
         $service = Service::create($validated);
 
+        // حفظ الصور إن وجدت
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('services', 'public');
@@ -39,6 +40,7 @@ class ServiceController extends Controller
             }
         }
 
+        // إضافة الأيام
         if (!empty($request->days)) {
             foreach ($request->days as $day) {
                 JourDisponible::create([
@@ -50,7 +52,7 @@ class ServiceController extends Controller
 
         return response()->json([
             'status' => 201,
-            'message' => 'Service a été créé avec succès',
+            'message' => 'Service créé avec succès',
             'service' => $service->load(['galleries', 'joursDisponibles'])
         ], 201);
     }
@@ -59,20 +61,19 @@ class ServiceController extends Controller
     {
         return response()->json([
             'status' => 200,
-            'service' => $service->load(['category','galleries','joursDisponibles'])
-        ], 200);    
+            'service' => $service->load(['category', 'galleries', 'joursDisponibles'])
+        ]);
     }
 
     public function update(UpdateServiceRequest $request, Service $service)
     {
         $validated = $request->validated();
 
+        // تحديت البيانات الأساسية
         $service->update($validated);
 
+        // إضافة صور جديدة فقط (لا نحذف القديمة)
         if ($request->hasFile('images')) {
-
-            $service->galleries()->delete();
-
             foreach ($request->file('images') as $file) {
                 $path = $file->store('services', 'public');
 
@@ -83,6 +84,7 @@ class ServiceController extends Controller
             }
         }
 
+        // تحديث الأيام
         if ($request->has('days')) {
             $service->joursDisponibles()->delete();
 
@@ -96,17 +98,28 @@ class ServiceController extends Controller
 
         return response()->json([
             'status' => 200,
-            'message' => 'Service a été mis à jour avec succès',
-        ], 200);
+            'message' => 'Service mis à jour avec succès',
+            'service' => $service->load(['galleries', 'joursDisponibles'])
+        ]);
     }
 
     public function destroy(Service $service)
     {
+        // حذف الصور من التخزين
+        foreach ($service->galleries as $img) {
+            Storage::disk('public')->delete($img->path);
+        }
+
+        // حذف العلاقات
+        $service->galleries()->delete();
+        $service->joursDisponibles()->delete();
+
+        // حذف الخدمة
         $service->delete();
 
         return response()->json([
             'status' => 200,
-            'message' => 'Service a été supprimé avec succès',
-        ], 200);
+            'message' => 'Service supprimé avec succès'
+        ]);
     }
 }

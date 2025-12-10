@@ -14,16 +14,11 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'name'        => 'required|string|max:255',
             'description' => 'required|string',
             'duration'    => 'required|string',
             'price'       => 'required|numeric',
-            'is_active'   => 'boolean',
-
-            'images'      => 'array',
-            'images.*'    => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-
             'days'        => 'array',
             'days.*'      => 'string',
         ];
