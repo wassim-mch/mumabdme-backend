@@ -19,11 +19,8 @@ Route::get('/categories', [CategorieController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:manage_roles');
     Route::apiResource('/roles', RoleController::class)->middleware('permission:manage_roles');
-    Route::post('/services/{service}/images', [GalleryController::class, 'store'])->middleware('permission:manage_services');
-    Route::put('/services/{service}/images/{image}', [GalleryController::class, 'update'])->middleware('permission:manage_services'); 
-    Route::delete('/services/{service}/images/{image}', [GalleryController::class, 'destroy'])->middleware('permission:manage_services');
-    Route::apiResource('/services', ServiceController::class)->middleware('permission:manage_services');
-    Route::apiResource('/categories', CategorieController::class)->middleware('permission:manage_categories');
+    Route::apiResource('/service', ServiceController::class)->middleware('permission:manage_services');
+    Route::apiResource('/categorie', CategorieController::class)->middleware('permission:manage_categories');
     Route::get('/admin/rdvs', [RdvController::class, 'indexAll'])->middleware('permission:manage_rdvs_own');
     Route::put('/admin/rdvs/{rdv}', [RdvController::class, 'update'])->middleware('permission:manage_rdvs_own');
     Route::get('/rdvs', [RdvController::class, 'index'])->middleware('permission:manage_rdvs'); 

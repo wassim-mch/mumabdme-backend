@@ -19,6 +19,9 @@ class StoreServiceRequest extends FormRequest
             'description' => 'required|string',
             'duration'    => 'required|string',
             'price'       => 'required|numeric',
+            'image'       => 'required|image|max:2048',
+            'images'      => 'nullable|array|min:1', // على الأقل صورة واحدة
+            'images.*'    => 'image|max:2048',       // كل صورة يجب أن تكون image
             'days'        => 'array',
             'days.*'      => 'string',
         ];

@@ -16,6 +16,13 @@ class ServiceController extends Controller
     {
         $services = Service::with(['category', 'galleries', 'joursDisponibles'])->get();
 
+        $services->each(function($s) {
+            $s->galleries->transform(function($g) {
+                $g->path = Storage::url($g->path);
+                return $g;
+            });
+        });
+
         return response()->json([
             'status' => 200,
             'services' => $services
@@ -25,6 +32,13 @@ class ServiceController extends Controller
     public function store(StoreServiceRequest $request)
     {
         $validated = $request->validated();
+        $days = $validated['days'] ?? [];
+        unset($validated['days']);
+
+        if ($request->hasFile('image')) {
+            $mainImagePath = $request->file('image')->store('services', 'public');
+            $validated['image'] = $mainImagePath;
+        }
 
         $service = Service::create($validated);
 
@@ -34,29 +48,35 @@ class ServiceController extends Controller
 
                 Gallery::create([
                     'service_id' => $service->id,
-                    'path' => $path
+                    'path'       => $path
                 ]);
             }
         }
 
-        if (!empty($request->days)) {
-            foreach ($request->days as $day) {
-                JourDisponible::create([
-                    'service_id' => $service->id,
-                    'day' => $day
-                ]);
-            }
+        foreach ($days as $day) {
+            JourDisponible::create([
+                'service_id' => $service->id,
+                'day'        => $day
+            ]);
         }
 
         return response()->json([
-            'status' => 201,
+            'status'  => 201,
             'message' => 'Service créé avec succès',
-            'service' => $service->load(['galleries', 'joursDisponibles'])
         ], 201);
     }
+    
+
+
 
     public function show(Service $service)
     {
+        $service->each(function($s) {
+            $s->galleries->transform(function($g) {
+                $g->path = Storage::url($g->path);
+                return $g;
+            });
+        });
         return response()->json([
             'status' => 200,
             'service' => $service->load(['category', 'galleries', 'joursDisponibles'])
@@ -67,7 +87,26 @@ class ServiceController extends Controller
     {
         $validated = $request->validated();
 
+        $days = $validated['days'] ?? [];
+        unset($validated['days']);
+
+        if ($request->hasFile('image')) {
+            if ($service->image) {
+                Storage::disk('public')->delete($service->image);
+            }
+            $mainImagePath = $request->file('image')->store('services', 'public');
+            $validated['image'] = $mainImagePath;
+        }
+
         $service->update($validated);
+
+        $service->joursDisponibles()->delete();
+        foreach ($days as $day) {
+            JourDisponible::create([
+                'service_id' => $service->id,
+                'day' => $day
+            ]);
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
@@ -75,18 +114,7 @@ class ServiceController extends Controller
 
                 Gallery::create([
                     'service_id' => $service->id,
-                    'path' => $path
-                ]);
-            }
-        }
-
-        if ($request->has('days')) {
-            $service->joursDisponibles()->delete();
-
-            foreach ($request->days as $day) {
-                JourDisponible::create([
-                    'service_id' => $service->id,
-                    'day' => $day
+                    'path'       => $path
                 ]);
             }
         }
@@ -97,6 +125,7 @@ class ServiceController extends Controller
             'service' => $service->load(['galleries', 'joursDisponibles'])
         ]);
     }
+
 
     public function destroy(Service $service)
     {

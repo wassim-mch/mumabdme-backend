@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Service extends Model
 {
@@ -12,6 +13,8 @@ class Service extends Model
         'description',
         'duration',
         'price',
+        'days'  ,
+        'image',
         'is_active'
     ];
 
@@ -28,5 +31,10 @@ class Service extends Model
     public function joursDisponibles()
     {
         return $this->hasMany(JourDisponible::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? Storage::url($this->image) : null;
     }
 }
