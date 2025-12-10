@@ -6,6 +6,7 @@ use App\Models\Gallery;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Models\JourDisponible;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 
@@ -25,10 +26,8 @@ class ServiceController extends Controller
     {
         $validated = $request->validated();
 
-        // إنشاء الخدمة
         $service = Service::create($validated);
 
-        // حفظ الصور إن وجدت
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('services', 'public');
@@ -40,7 +39,6 @@ class ServiceController extends Controller
             }
         }
 
-        // إضافة الأيام
         if (!empty($request->days)) {
             foreach ($request->days as $day) {
                 JourDisponible::create([
@@ -69,10 +67,8 @@ class ServiceController extends Controller
     {
         $validated = $request->validated();
 
-        // تحديت البيانات الأساسية
         $service->update($validated);
 
-        // إضافة صور جديدة فقط (لا نحذف القديمة)
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $path = $file->store('services', 'public');
@@ -84,7 +80,6 @@ class ServiceController extends Controller
             }
         }
 
-        // تحديث الأيام
         if ($request->has('days')) {
             $service->joursDisponibles()->delete();
 
@@ -105,16 +100,13 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
-        // حذف الصور من التخزين
         foreach ($service->galleries as $img) {
             Storage::disk('public')->delete($img->path);
         }
 
-        // حذف العلاقات
         $service->galleries()->delete();
         $service->joursDisponibles()->delete();
 
-        // حذف الخدمة
         $service->delete();
 
         return response()->json([
