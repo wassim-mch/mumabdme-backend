@@ -39,7 +39,7 @@ class RdvController extends Controller
             foreach ($request->items as $item) {
                 $rdvItem = new RdvItem();
                 $rdvItem->rdv_id = $rdv->id;
-                $rdvItem->service_id = $item['service_id'];
+                $rdvItem->service_id = $item['id'];
                 $rdvItem->price = $item['price']; 
                 $rdvItem->save();
             }
