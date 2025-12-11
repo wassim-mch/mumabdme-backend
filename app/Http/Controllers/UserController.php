@@ -26,9 +26,17 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+
         $request->validate([
             'role_id' => 'sometimes|integer|exists:roles,id',
         ]);
+
+        if (auth()->id() === $user->id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Tu ne peux pas supprimer ton propre compte.'
+            ], 403);
+        }
 
         if ($request->has('role_id')) {
             $user->role_id = $request->role_id;
@@ -48,7 +56,7 @@ class UserController extends Controller
         if (auth()->id() === $user->id) {
             return response()->json([
                 'status' => 403,
-                'message' => 'You cannot delete yourself'
+                'message' => 'Tu ne peux pas supprimer ton propre compte.'
             ], 403);
         }
         $user->delete();
