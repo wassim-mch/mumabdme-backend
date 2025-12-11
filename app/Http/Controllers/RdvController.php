@@ -11,7 +11,7 @@ class RdvController extends Controller
 {
     public function indexAll()
     {
-        $rdvs = Rdv::with('items.service', 'facture')->get();
+        $rdvs = Rdv::with('items.service', 'facture', 'user')->get();
         return response()->json([
             'status' => 200,
             'rdvs' => $rdvs
@@ -32,14 +32,13 @@ class RdvController extends Controller
         if (!empty($request->items)) {
             $rdv = new Rdv();
             $rdv->user_id = $request->user()->id;
-            $rdv->status = $request->status ?? 'en attente';
             $rdv->scheduled_at = $request->scheduled_at;
             $rdv->save();
 
             foreach ($request->items as $item) {
                 $rdvItem = new RdvItem();
                 $rdvItem->rdv_id = $rdv->id;
-                $rdvItem->service_id = $item['service_id'];
+                $rdvItem->service_id = $item['id'];
                 $rdvItem->price = $item['price']; 
                 $rdvItem->save();
             }

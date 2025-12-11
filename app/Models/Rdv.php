@@ -8,6 +8,11 @@ class Rdv extends Model
 {
     protected $fillable = ['user_id', 'status', 'scheduled_at'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function items()
     {
         return $this->hasMany(RdvItem::class);

@@ -14,18 +14,18 @@ class ServiceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Service::query();
+        $query = Service::with('joursDisponibles');
 
         if ($request->category_id) {
-            $query->where('category_id', $request->category_id);
+            $query->where('category_id', $request->category_id)->with('joursDisponibles');
         }
 
         if ($request->min_price) {
-            $query->where('price', '>=', $request->min_price);
+            $query->where('price', '>=', $request->min_price)->with('joursDisponibles');
         }
 
         if ($request->max_price) {
-            $query->where('price', '<=', $request->max_price);
+            $query->where('price', '<=', $request->max_price)->with('joursDisponibles');
         }
 
         $services = $query->paginate(4);
